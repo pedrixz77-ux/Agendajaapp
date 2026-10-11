@@ -16,9 +16,13 @@ label{display:flex;flex-direction:column;gap:7px;font-size:.82rem;font-weight:50
 .business-monogram{overflow:hidden}.business-monogram img{width:100%;height:100%;object-fit:cover}.logo-form{padding:20px 0 30px;margin-bottom:25px;border-bottom:1px solid var(--line)}
 
 /* Brand palette applied to the commercial page without changing professional custom colors. */
-.marketing-page{background:radial-gradient(ellipse 75% 600px at 100% 0%,#f3c4d27a,transparent),radial-gradient(ellipse 60% 500px at 0% 120px,#c8b4ff24,transparent),var(--bg)}
+.marketing-page{background:radial-gradient(ellipse 90% 850px at 100% 240px,#d6a0b580,transparent 75%),radial-gradient(ellipse 80% 650px at 0% 100px,#c8b4ff40,transparent 75%),linear-gradient(180deg,#fff7f8 0,#f3c4d2a6 420px,#fff7f8 1150px);background-repeat:no-repeat}
 .marketing-page .button:not(.light):not(.secondary){background:linear-gradient(115deg,#3a0f2e,#743650);box-shadow:0 5px 16px #3a0f2e12}
 .marketing-page .button:not(.light):not(.secondary):hover{background:linear-gradient(115deg,#532340,#87445e);box-shadow:0 8px 22px #3a0f2e24}
 .marketing-page .hero-preview{border:1px solid #ffffffb3;background:radial-gradient(ellipse at 95% 0%,#c8b4ff65,transparent 60%),linear-gradient(140deg,#fff7f8,#f3c4d2 60%,#d6a0b5)}
-.marketing-page .hero .eyebrow{font-weight:600;letter-spacing:.02em}
+.marketing-page .hero .eyebrow{font-weight:600;letter-spacing:.02em;color:#754158}
+.marketing-page .hero-copy,.marketing-page .hero .fine-print{color:#654052}
+.marketing-page .feature-section{background:radial-gradient(ellipse at 100% 0%,#c8b4ff38,transparent 65%),linear-gradient(115deg,#f3c4d2a6,#fff7f8 55%,#d6a0b566)}
+.marketing-page .brand-line{background:#f3c4d280;border-color:#d6a0b559}
+.marketing-page .final-cta{background:radial-gradient(ellipse at 90% 0%,#d6a0b577,transparent 65%),radial-gradient(ellipse at 0% 100%,#c8b4ff33,transparent 65%),linear-gradient(125deg,#3a0f2e,#743650)}
 @media(max-width:480px){.marketing-page .hero h1{line-height:1.22}.marketing-page .hero-preview{border-radius:22px}}
