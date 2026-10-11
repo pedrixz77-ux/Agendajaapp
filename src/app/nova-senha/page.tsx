@@ -1,0 +1,3 @@
+import {Brand} from '@/components/brand';
+import {AuthForm} from '@/components/auth-form';
+export default function Page(){return <><header className="container site-header"><Brand/></header><main id="main" className="auth-shell container"><AuthForm mode="password"/><aside><p>Sua rotina mais organizada.</p><h2>Mais tempo<br/>para o que<br/><em>você ama.</em></h2><span>AgendaJá · Feito para profissionais da beleza</span></aside></main></>;}

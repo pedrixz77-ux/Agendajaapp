@@ -1,0 +1,10 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import {DateTime} from 'luxon';
+import {availableSlots} from '../src/lib/slots.ts';
+const base={date:'2026-10-14',zone:'America/Sao_Paulo',duration:60,buffer:15,notice:60,horizon:60,windows:[{weekday:3,start_minute:540,end_minute:720},{weekday:3,start_minute:780,end_minute:1080}],busy:[],now:DateTime.fromISO('2026-10-11T12:00:00Z')};
+test('duration and buffer fit entirely inside each work period',()=>{const slots=availableSlots(base);assert(slots.includes('2026-10-14T12:00:00.000Z'));assert(!slots.includes('2026-10-14T14:00:00.000Z'));assert(!slots.includes('2026-10-14T15:00:00.000Z'));assert(!slots.includes('2026-10-14T20:00:00.000Z'));});
+test('busy intervals block partial overlap but permit exact boundary',()=>{const slots=availableSlots({...base,busy:[{starts_at:'2026-10-14T12:00:00Z',busy_until:'2026-10-14T13:15:00Z'}]});assert(!slots.includes('2026-10-14T12:30:00.000Z'));assert(slots.includes('2026-10-14T13:15:00.000Z'));});
+test('past and outside horizon return no slots',()=>{assert.equal(availableSlots({...base,date:'2026-10-07'}).length,0);assert.equal(availableSlots({...base,date:'2027-10-13'}).length,0);});
+test('invalid dates are rejected',()=>assert.deepEqual(availableSlots({...base,date:'2026-02-31'}),[]));
+test('spring DST never silently creates nonexistent wall times',()=>{const slots=availableSlots({...base,date:'2027-03-14',zone:'America/New_York',duration:30,buffer:0,windows:[{weekday:0,start_minute:60,end_minute:240}],now:DateTime.fromISO('2027-03-10T12:00:00Z')});for(const slot of slots)assert.notEqual(DateTime.fromISO(slot).setZone('America/New_York').hour,2);});
