@@ -5,11 +5,15 @@ import {DateTime} from 'luxon';
 import {createHash,createHmac} from 'node:crypto';
 import {z} from 'zod';
 export const dynamic='force-dynamic';
+function bookingDiagnostic(stage:string,error:unknown,status?:number){
+ const code=(error as {code?:unknown})?.code;
+ console.error('booking_failure',JSON.stringify({stage,status,code:typeof code==='string'&&/^[A-Z0-9_]{1,32}$/.test(code)?code:'UNKNOWN'}));
+}
 function hash(token:string){return createHash('sha256').update(token).digest('hex');}
-async function limit(db:ReturnType<typeof adminClient>,key:string,max:number){const digest=createHmac('sha256',process.env.SUPABASE_SECRET_KEY!).update(key).digest('hex');const {data,error}=await db.rpc('consume_limit',{p_key:digest,p_limit:max,p_seconds:3600});if(error||!data)throw new Error('RATE');}
+async function limit(db:ReturnType<typeof adminClient>,key:string,max:number){const digest=createHmac('sha256',process.env.SUPABASE_SECRET_KEY!).update(key).digest('hex');const {data,error,status}=await db.rpc('consume_limit',{p_key:digest,p_limit:max,p_seconds:3600});if(error){bookingDiagnostic('rate_limit',error,status);throw new Error('RATE');}if(!data)throw new Error('RATE');}
 async function catalog(db:ReturnType<typeof adminClient>,slug:string){
- const {data:b,error}=await db.from('businesses').select('id,name,slug,description,whatsapp,accent,timezone,published,buffer_minutes,notice_minutes,horizon_days,cancellation_hours,logo_path').eq('slug',slug).eq('published',true).maybeSingle();if(error||!b)throw new Error('NOT_FOUND');
- const {data:sub,error:subError}=await db.from('subscriptions').select('status,trial_ends_at,current_period_end').eq('business_id',b.id).single();if(subError||!sub)throw new Error('INACTIVE');
+ const {data:b,error}=await db.from('businesses').select('id,name,slug,description,whatsapp,accent,timezone,published,buffer_minutes,notice_minutes,horizon_days,cancellation_hours,logo_path').eq('slug',slug).eq('published',true).maybeSingle();if(error){bookingDiagnostic('business_lookup',error);throw new Error('NOT_FOUND');}if(!b)throw new Error('NOT_FOUND');
+ const {data:sub,error:subError}=await db.from('subscriptions').select('status,trial_ends_at,current_period_end').eq('business_id',b.id).single();if(subError){bookingDiagnostic('subscription_lookup',subError);throw new Error('INACTIVE');}if(!sub)throw new Error('INACTIVE');
  const end=sub.status==='trialing'?sub.trial_ends_at:['active','canceled'].includes(sub.status)?sub.current_period_end:null;
  if(!end||new Date(end)<=new Date())throw new Error('INACTIVE');return b;
 }
@@ -24,7 +28,7 @@ export async function GET(req:Request){try{
   slots=availableSlots({date,zone:b.timezone,duration:service.duration_minutes,buffer:b.buffer_minutes,notice:b.notice_minutes,horizon:b.horizon_days,windows:windows??[],busy:busy??[]});
  }
  return Response.json({business:{name:b.name,slug:b.slug,description:b.description,whatsapp:b.whatsapp,accent:b.accent,timezone:b.timezone,cancellation_hours:b.cancellation_hours,horizon_days:b.horizon_days,logo_url:b.logo_path?db.storage.from('business-images').getPublicUrl(b.logo_path).data.publicUrl:null},services,slots},{headers:{'Cache-Control':'no-store'}});
- }catch(e){return failure(e);}}
+ }catch(e){const reason=e instanceof Error&&['RATE','NOT_FOUND','INACTIVE','SERVER_NOT_CONFIGURED','DATE'].includes(e.message)?e.message:'UNKNOWN';console.error('booking_get_failed',JSON.stringify({reason}));return failure(e);}}
 export async function POST(req:Request){try{
  sameOrigin(req);const body=await jsonBody(req);const db=adminClient();
  const token=z.string().regex(/^[a-f0-9]{64}$/).parse(body.token);
