@@ -47,7 +47,7 @@ Os clientes finais não acessam diretamente as tabelas. APIs públicas retornam 
 
 ## Assinatura
 
-Preço planejado: R$ 29,90/mês. Estados: trialing, active, pending, past_due, canceled. Navegador não pode alterar assinatura. Avaliação de sete dias implementada no banco. Não existe cobrança real ou checkout funcional. A tabela privada de eventos é preparação para idempotência, não prova de integração com pagamentos.
+Preço planejado: R$ 19,99/mês. Estados: trialing, active, pending, past_due, canceled. Navegador não pode alterar assinatura. Avaliação de sete dias implementada no banco. Não existe cobrança real ou checkout funcional. A tabela privada de eventos é preparação para idempotência, não prova de integração com pagamentos.
 
 ## Limitações atuais
 
